@@ -1,8 +1,0 @@
-package com.urmet.dresser;
-
-//import org.apache.mina.core.session.IoSession;
-
-public interface MessageListener<T,S> {
-
-	public void onMessage(T message,S ioSession);
-}
