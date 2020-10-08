@@ -1,0 +1,17 @@
+package com.urmet.dresser.flow;
+
+import com.urmet.dresser.exception.SessionNotConnectedException;
+import com.urmet.dresser.exception.SessionTimeoutException;
+
+
+public interface FlowChain<T extends FlowSession,V extends FlowContext> {
+
+	void next(FlowChain<T,V> chain);
+	boolean hasNext();
+	FlowChain<T,V> getNext();
+    void process(T session,V flowContext)throws FlowExecutionException;
+    boolean accept(V flowContext);
+    void doHandle(T session,V flowContext)throws FlowExecutionException,SessionNotConnectedException,SessionTimeoutException;
+    void interrupt();
+    
+}

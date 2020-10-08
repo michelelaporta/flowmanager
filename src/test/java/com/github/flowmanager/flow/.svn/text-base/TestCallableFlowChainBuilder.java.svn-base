@@ -1,0 +1,12 @@
+package com.urmet.dresser.flow;
+
+
+public class TestCallableFlowChainBuilder extends AbstractFlowChainBuilder<TestGdmSession,FlowContext>{
+
+	@Override
+	public void build() {
+		MasterFlow testFlow = new MasterFlow();
+		testFlow.registerSubFlow(new CallableTestFlow());
+		flowChainExecutor.addFlow(testFlow);
+	}
+}

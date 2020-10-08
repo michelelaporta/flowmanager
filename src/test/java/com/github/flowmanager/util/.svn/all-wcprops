@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/dresser/!svn/ver/1124/trunk/common/src/main/java/com/urmet/dresser/util
+END
+InvokeIdRoundRobin.java
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/dresser/!svn/ver/862/trunk/common/src/main/java/com/urmet/dresser/util/InvokeIdRoundRobin.java
+END
+StopWatch.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/dresser/!svn/ver/324/trunk/common/src/main/java/com/urmet/dresser/util/StopWatch.java
+END
+PasswordGenerator.java
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/dresser/!svn/ver/891/trunk/common/src/main/java/com/urmet/dresser/util/PasswordGenerator.java
+END
+BitSetUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/dresser/!svn/ver/797/trunk/common/src/main/java/com/urmet/dresser/util/BitSetUtil.java
+END
+BCDUtil.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/dresser/!svn/ver/696/trunk/common/src/main/java/com/urmet/dresser/util/BCDUtil.java
+END
+CRCDNP.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/dresser/!svn/ver/553/trunk/common/src/main/java/com/urmet/dresser/util/CRCDNP.java
+END
+Utils.java
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/dresser/!svn/ver/1124/trunk/common/src/main/java/com/urmet/dresser/util/Utils.java
+END

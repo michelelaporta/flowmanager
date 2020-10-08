@@ -1,0 +1,39 @@
+package com.urmet.dresser.flow;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+
+public class CallableFlowChainTest {
+
+	private ExecutorService executorService;
+	private FlowDirector<TestGdmSession,FlowContext> director;
+	private CallableFlowManager flowManager;
+	@Before
+	public void setup() {
+		executorService = Executors.newFixedThreadPool(10);
+		TestGdmSession session = new TestGdmSession();
+		FlowContext flowContext = new FlowContext();
+
+		flowManager = new CallableFlowManager(executorService,CallableFlowChainExecutor.class);
+
+		director = new TestCallableFlowDirector(1L,flowManager);
+		TestFlowChainExecutor<TestGdmSession,FlowContext> executor = new TestFlowChainExecutor<TestGdmSession,FlowContext>(session, flowContext);
+		director.constructFlow(session,executor);
+
+	}
+	
+	@Test
+	public void testFlowChain() throws Exception {
+		executorService.submit(new FlowManagerExecutor<TestGdmSession,FlowContext>(director));
+	}
+	
+	@After
+	public void tearDown() {
+		executorService.shutdown();
+	}
+}

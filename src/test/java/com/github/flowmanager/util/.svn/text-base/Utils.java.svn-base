@@ -1,0 +1,540 @@
+package com.urmet.dresser.util;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
+import java.security.MessageDigest;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.BitSet;
+import java.util.Calendar;
+import java.util.Date;
+
+import com.urmet.dresser.Constants;
+
+public class Utils {
+
+	public static String removeCEndString(String input){
+		char nullChar = Character.UNASSIGNED;
+		if(((byte)input.charAt(input.length()-1)) == 0x00)
+			return input = input.replace('\u0000', nullChar).trim();
+		return input;	
+	}
+
+    public static String toHexString(byte[] ba) {
+        if (ba == null) {
+            return(null);
+        }
+        
+        final char[] binToHexChar = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+        StringBuffer sb = new StringBuffer(ba.length * 2);
+        
+        for (int i = 0; i < ba.length; i++) {
+            sb.append(binToHexChar[(ba[i] & 0xf0) >> 4]);
+            sb.append(binToHexChar[ba[i] & 0xf]);
+            sb.append(" ");
+        }
+        
+        return(sb.toString());
+    }
+    
+    public static byte[] hexStringToByteArray(String string) throws IllegalArgumentException {
+        if (string == null) {
+            throw new IllegalArgumentException("null");
+        }
+
+        int strlength = string.length();
+
+        if (strlength % 2 != 0) {
+            throw new IllegalArgumentException("Invalid string length.");
+        }
+        
+        int length = strlength / 2;
+        byte[] ba = new byte[length];
+        
+        for (int i = 0; i < length; i++) {
+            int value1 = Character.digit(string.charAt(i * 2), 16);
+            int value2 = Character.digit(string.charAt(i * 2 + 1), 16);
+            
+            if ((value1 == -1) || (value2 == -1)) {
+                throw new IllegalArgumentException("Invalid character.");
+            }
+            
+            ba[i] = (byte) ((value1 << 4) + value2);
+        }
+
+        return(ba);
+    }
+    
+    public static void hexStringToByteArray(String string, byte[] out, int offset) throws IllegalArgumentException {
+        if ((string == null) || (out == null)) {
+            throw new IllegalArgumentException("null pointer.");
+        }
+        
+        int strlength = string.length();
+        
+        if (strlength % 2 != 0) {
+            throw new IllegalArgumentException("Invalid string length.");
+        }
+        
+        int length = strlength / 2;
+        
+        if (out.length - offset < length) {
+            throw new IllegalArgumentException("Out to short for result.");
+        }
+        
+        for (int i = 0; i < length; i++) {
+            int value1 = Character.digit(string.charAt(i * 2), 16);
+            int value2 = Character.digit(string.charAt(i * 2 + 1), 16);
+            
+            if ((value1 == -1) || (value2 == -1)) {
+                throw new IllegalArgumentException("Invalid character.");
+            }
+            
+            out[offset + i] = (byte) ((value1 << 4) + value2);
+        }
+    }
+    
+    public static byte[] xor(byte[] in1, byte[] in2){
+        byte[] out = new byte[in1.length];
+        for (int c = 0;c < in1.length; c++){
+            out[c] = (byte)((byte)in1[c]^(byte)in2[c]);
+        }
+        
+        return(out);
+    }
+    
+    public static byte[] loadAFile(File aFile){
+    	try{
+    		byte[] buffer = new byte[(int)aFile.length()];
+    		FileInputStream fis = new FileInputStream(aFile);
+    		int pos = 0;
+    		while (pos < aFile.length()){
+    			int len = fis.read(buffer,pos,(int)aFile.length()-pos);
+    			pos = pos + len;
+    		}
+    		
+    		fis.close();
+    		return(buffer);
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
+        
+    	return(null);
+    }
+    
+    public static byte[] hashFile(File aFile){
+        byte[] fileData = loadAFile(aFile);
+        if (fileData == null) return(null);
+        try{
+            MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+            return(sha1.digest(fileData));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        return(null);
+    }
+    
+    public static byte[] concatBytes(byte[] b1, byte[] b2)
+    {
+      byte[] b3 = new byte[b1.length+b2.length];
+      System.arraycopy(b1, 0, b3, 0, b1.length);
+      System.arraycopy(b2, 0, b3, b1.length, b2.length);
+      return b3;
+    }
+
+    
+    public static Byte getTwoDigitYear(Calendar calendar){
+    	// Two-digit year, ranging from 00 to 99
+    	String year = String.format("%Ty", calendar);
+    	return new Integer(Integer.parseInt(year)).byteValue();
+    }
+
+    public static Byte getTwoDigitMonth(Calendar calendar){
+		//Two-digit month, ranging from 01 to 12 
+    	String month = String.format("%Tm", calendar);
+    	return new Integer(Integer.parseInt(month)).byteValue();
+    }
+
+    public static Byte getTwoDigitDay(Calendar calendar){
+		//  Two-digit day of the month, ranging from 01 to 31
+		String day = String.format("%Td", calendar);
+		return new Integer(Integer.parseInt(day)).byteValue();
+		
+    }
+    
+    public static byte[] toBytes(short data) {
+    	 return new byte[] { (byte) ((data & 0xFF00) >> 8), (byte) (data & 0x00FF) };
+    	 //return (short) (data[0] & 0xFF | data[1] << 8);
+
+    }
+    
+    public static short toShort(byte[] data) {
+		ByteBuffer buffer = ByteBuffer.allocate(2);
+		buffer.put(data);
+		buffer.flip();
+		ShortBuffer shortBuffer = buffer.asShortBuffer();
+		return shortBuffer.get();
+   	 
+    }
+
+    public static ByteBuffer readFile(File file)throws IOException{
+		byte[] bytes = null;
+		
+		InputStream is = new FileInputStream(file);
+		// Get the size of the file
+        long length = file.length();
+
+        // You cannot create an array using a long type.
+        // It needs to be an int type.
+        // Before converting to an int type, check
+        // to ensure that file is not larger than Integer.MAX_VALUE.
+        if (length > Integer.MAX_VALUE) {
+            throw new IllegalStateException("file is larger than " + Integer.MAX_VALUE);
+        }
+
+        //Create the byte array to hold the data
+        bytes = new byte[(int)length];
+    
+        // Read in the bytes
+        int offset = 0;
+        int numRead = 0;
+        while (offset < bytes.length
+               && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
+            offset += numRead;
+        }
+    
+        // Ensure all the bytes have been read in
+        if (offset < bytes.length) {
+            throw new IOException("Could not completely read file " + file.getName());
+        }
+    
+        // Close the input stream and return bytes
+        is.close();
+        
+        return ByteBuffer.wrap(bytes);
+		
+	}
+   
+    
+    public static Integer getProfile(byte profi)throws IllegalArgumentException{
+    	// read bits 0-2 and determinate profile(0,1,2,3,4) 
+    	Integer profile = profi & 0x07;
+    	if(profile > 4)
+        	throw new IllegalArgumentException("wrong profile "+profile);
+    	return profile;
+    }
+    
+    public static Integer getOperatorId(byte profi)throws IllegalArgumentException{
+    	// read bits 3-6 and determinate operator_id (0-9; 0= admin)
+    	Integer operatorId = profi >> 3 & 0x0F;
+        if(operatorId > 9)
+        	throw new IllegalArgumentException("wrong operatorId "+operatorId);
+    	return operatorId;
+    }
+    
+    public static Integer getLdT(byte profi){
+    	// read bit 7 and determinate LdT
+    	Integer ldt = profi >> 7 & 0x01;
+    	return ldt == 1 ? Constants.LONG_MESSAGE_LENGTH : Constants.SHORT_MESSAGE_LENGTH;
+    }
+    
+    public static Integer getEncryptionType(byte funct)throws IllegalArgumentException{
+    	// read bit 6 and 7 and determinate encryption type (0=none,1=keyc,2=keyt,3=keyf)
+    	Integer encryption = funct >> 6 & 0x03;
+    	if(encryption > 3)
+        	throw new IllegalArgumentException("wrong encryption "+encryption);
+    	return encryption;
+    }    
+
+    public static Integer getIndicatoreFascia(byte qlf)throws IllegalArgumentException{
+    	// read bit 6-7 to determinate if2/if1
+    	// pt not active = 0
+    	// f1 = 1
+    	// f2 = 2;
+    	// f3 = 3;
+    	return qlf >> 6 & 0x03;
+    } 
+    
+    public static Integer getIndicatoreRegimeOrario(byte qlf)throws IllegalArgumentException{
+    	// read bit 5 to determinate dayLight saving time
+    	// solare = 0
+    	// legale = 1;
+    	return qlf >> 5 & 0x01;
+    }
+   
+    public static Integer getIndicatoreKMolt(byte qlf)throws IllegalArgumentException{
+    	// read bits 0-2 and determinate kmolt 
+    	Integer kmolt = qlf & 0x07;
+    	return kmolt;
+    }    
+    public static Integer getIndicatoreValidita(byte qlf)throws IllegalArgumentException{
+    	// read bit 3-4 to determinate validity
+    	// 00 Valore effettivo valido
+    	// 01 Valore in stato di manutenzione
+    	// 10 Valore non valido
+    	// 11 Riservato
+    	return qlf >> 3 & 0x03;
+    } 
+    
+    public static byte getFunct(byte funct)throws IllegalArgumentException{
+    	// read bit 0-6 
+    	Integer functOnly = funct & 0x3F;
+    	return functOnly.byteValue();
+    }    
+
+    public static byte getProfi(Integer profile,Integer operatorId,Integer messageSize){
+		byte profi = 0x00;
+
+		BitSet profiBitSet = new BitSet(8);
+		
+		if(profile == 1){
+			profiBitSet.set(0, true);
+		}else if(profile == 2){
+			profiBitSet.set(1, true);
+		}else if(profile == 3){
+			profiBitSet.set(0, true);
+			profiBitSet.set(1, true);
+		}else if(profile == 4){
+			profiBitSet.set(2, true);
+		}
+
+		if(operatorId == 1){
+			profiBitSet.set(3, true);
+		}else if(operatorId == 2){
+			profiBitSet.set(4, true);
+		}else if(operatorId == 3){
+			profiBitSet.set(3, true);
+			profiBitSet.set(4, true);
+		}else if(operatorId == 4){
+			profiBitSet.set(5, true);
+		}else if(operatorId == 5){
+			profiBitSet.set(3, true);
+			profiBitSet.set(5, true);
+		}else if(operatorId == 6){
+			profiBitSet.set(4, true);
+			profiBitSet.set(5, true);
+		}else if(operatorId == 7){
+			profiBitSet.set(3, true);
+			profiBitSet.set(4, true);
+			profiBitSet.set(5, true);
+		}else if(operatorId == 8){
+			profiBitSet.set(6, true);
+		}else if(operatorId == 9){
+			profiBitSet.set(3, true);
+			profiBitSet.set(6, true);
+		}
+
+		if(messageSize == Constants.LONG_MESSAGE_LENGTH){
+			profiBitSet.set(7, true);			
+		}
+
+		byte[] res = BitSetUtil.toByteArray(profiBitSet);
+		
+		if(res.length > 1){
+			//logger.info("profiBitSet " + profiBitSet + " -> " + res[1]);
+			profi = res[1];
+		}else{
+			//logger.info("profiBitSet " + profiBitSet + " -> " + res[0]);
+			profi = res[0];
+		}
+		
+		
+		return profi;
+	}
+
+
+	public static boolean increment(byte[] value) {
+		for (int i = value.length; --i >= 0;) {
+			byte newValue = (byte) ((value[i] & 0xff) + 1);
+			value[i] = newValue;
+			if (newValue != 0) {
+				// No carry bit, so done adding.
+				return true;
+			}
+		}
+		// This point is reached upon overflow.
+		return false;
+	}
+
+    
+	public static Date dateFromByte(byte twoDigitYear,byte month,byte day,byte hour,byte minutes) throws ParseException{
+		System.out.println("dateFromByte=");
+		
+		String str_date=  String.format("20%02d", (int)twoDigitYear)+ "-" 
+				+String.format("%02d", (int)month)+"-"
+				+ String.format("%02d", (int)day)+ " "
+				+ String.format("%02d", (int)hour)+":" 
+				+ String.format("%02d", (int)minutes);
+		
+		System.out.println("str_date=" + str_date);
+		
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		Date eventDate;
+		try {
+			eventDate = (Date)formatter.parse(str_date);
+			return eventDate;
+		} catch (ParseException e) {
+			throw e;
+		}	
+	}
+
+	public static String padRight(String s, int n) {
+	     return String.format("%1$-" + n + "s", s);  
+	}
+
+	public static String padLeft(String s, int n) {
+	    return String.format("%1$#" + n + "s", s);  
+	}
+	
+	public static String padWithZero(String s, int n) {
+		
+		//return String.format("%05d", n);
+		System.out.println("input s " + s);
+		//String r = String.format("%1$#" + n + "s", s).replaceAll(" ", "0");
+		String r = String.format("%1$#" + n + "s", s);
+		
+		System.out.println("output r " + r);
+		return r;
+		
+	}
+
+	public static Short getPtIDShort(String ptIdNormalized){
+		String year = ptIdNormalized.substring(0,2);
+		String progressive = ptIdNormalized.substring(2,ptIdNormalized.length());
+		ByteBuffer buffer = ByteBuffer.allocate(2);
+		buffer.put((byte)Integer.parseInt(year));
+		buffer.put((byte)Integer.parseInt(progressive));
+		buffer.flip();
+		ShortBuffer shortBuffer = buffer.asShortBuffer();
+		return shortBuffer.get();
+	}
+
+	public static String getNormalizedPtID(Short ptID){
+		// format ptId
+		byte[] pt = toBytes(ptID);
+		String year = "" + pt[0];
+		String progressive = "" + pt[1];
+		progressive = padLeft(progressive, 3).replaceAll(" ","0");
+		year = padLeft(year, 2).replaceAll(" ","0");
+		String s = year + progressive; 
+		return s;		
+	}
+	public static double getReadingValue(byte qlf,byte[] data){
+		Integer kmolt = getIndicatoreKMolt(qlf);
+		// costruisco un byte array di 4 
+		ByteBuffer intValueBuffer = ByteBuffer.allocate(4);
+		intValueBuffer.put((byte)0x00);
+		intValueBuffer.put(data);
+		intValueBuffer.flip();
+		return  intValueBuffer.getInt() * Math.pow(10, (-1*kmolt));
+		
+	}
+	
+	public static Calendar getTheDayAfterTomorrow(){
+		Calendar plusTwoDays = Calendar.getInstance();
+		plusTwoDays.add(Calendar.DATE, Constants.TWO_DAYS);
+		return plusTwoDays;
+	}
+	
+	public static byte[] getIdentifyfromHexString(String identify) {
+		int value = Integer.parseInt(identify, 16); 
+		return new byte[] {
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)value};
+    }
+	
+	private static final String HEX = "0123456789ABCDEF";
+	
+	public static String getHex(byte[] raw) {
+		if (raw == null) {
+			return null;
+		}
+		final StringBuilder hex = new StringBuilder(2 * raw.length);
+		for (final byte b : raw) {
+			hex.append(HEX.charAt((b & 0xF0) >> 4)).append(
+					HEX.charAt((b & 0x0F)));
+		}
+		return hex.toString();
+	}
+
+	public static String bytesToBitString(byte[] array){
+		StringBuffer sb = new StringBuffer(array.length*8);
+		
+		for (int ix = 0; ix < array.length; ix++) {
+			byte bt = array[ix];
+			for(int i = 7; i >=0; i--){
+			      if(((1 << i) &  bt) != 0){
+			        sb.append("1");
+			      }else{
+			        sb.append("0");
+			      }
+			}
+		}		
+		return sb.toString();
+	}
+
+	
+	public static byte[] getRawIpAddress(String ipAddress){
+		byte[] raw = new byte[4];
+		try {
+			InetAddress ip = InetAddress.getByName(ipAddress);
+			byte[] bytes = ip.getAddress();
+			for (int x =0; x < bytes.length;x++) {
+			    //System.out.println(b & 0xFF);
+			    raw[x] = (byte)(bytes[x] & 0xFF);
+			}
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return raw;
+		
+	}
+	
+	public static String getIpAddress(byte[] ipRaw){
+		if(ipRaw != null){
+			try {
+				InetAddress ip = InetAddress.getByAddress(ipRaw);
+				return ip.getHostAddress();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}else
+			return null;
+	}
+	
+	public static Date getDateFromByteArray(byte[] date){
+		if(date != null){
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(2000+(int)date[0], (int)date[1], (int)date[2],0,0,0);
+			calendar.set(Calendar.MILLISECOND, 0);
+			return calendar.getTime();
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) {
+//		String identify = "0a0b0c0d";
+//		byte[] res = getIdentifyfromHexString(identify);
+//		System.out.println(getHex(res));
+		//byte[] bb = new byte[]{(byte)0x01,0x02,0x03};
+		//
+//		System.out.println(bytesToBitString(bb));
+//		System.out.println(bytesToBitString2(bb));
+		String ipAddress = "94.82.104.252";
+		System.out.println(Utils.toHexString(getRawIpAddress(ipAddress)));
+		System.out.println(Utils.getIpAddress(getRawIpAddress(ipAddress)));
+	}
+
+	
+}

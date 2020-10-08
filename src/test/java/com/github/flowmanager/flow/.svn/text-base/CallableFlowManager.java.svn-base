@@ -1,0 +1,10 @@
+package com.urmet.dresser.flow;
+
+import java.util.concurrent.ExecutorService;
+
+public class CallableFlowManager extends FlowManager<TestGdmSession,FlowContext> {
+
+	public CallableFlowManager(ExecutorService executorService,Class<CallableFlowChainExecutor> executor) {
+		super(executorService, executor);
+	}
+}

@@ -1,0 +1,131 @@
+package com.urmet.dresser.util;
+
+
+
+public class BCDUtil {
+
+	String BCD_TIME = "HHmm";
+    String BCD_DATE = "YYMMGG";
+  
+    /**
+	 * Encodes a string containing just decimal digis 0-9 into a backed binary
+	 * coded decimal array. For instance the decimal string "1234" will be
+	 * encoded into two bytes 0x12 0x34.
+	 * 
+	 * @param s
+	 *            The input string
+	 * @return the BCD encoded binary array
+	 */
+	public static byte[] encode(String s) {
+		int i = 0, j = 0;
+		int max = s.length() - (s.length() % 2);
+		byte[] buf = new byte[(s.length() + (s.length() % 2)) / 2];
+		while (i < max) {
+			buf[j++] = (byte) ((((s.charAt(i++) - '0') << 4) | (s.charAt(i++) - '0')));
+		}
+		if ((s.length() % 2) == 1) { // If odd, add pad char
+			buf[j] = (byte) ((s.charAt(i++) - '0') << 4 | 0x0A);
+		}
+		return buf;
+	}
+
+	/**
+	 * Decodes a BCD encoded array back into a String containing decimal digits.
+	 * For instance 0x34 will be decoded as the string "34".
+	 * 
+	 * @param b
+	 *            the input BCD encoded array
+	 * @return The decoded, original string
+	 *  
+	 */
+	public static String decode(byte[] b) {
+		StringBuffer buf = new StringBuffer(b.length * 2);
+		for (int i = 0; i < b.length; ++i) {
+			buf.append((char) (((b[i] & 0xf0) >> 4) + '0'));
+			if ((i != b.length) && ((b[i] & 0xf) != 0x0A)) // if not pad char
+				buf.append((char) ((b[i] & 0x0f) + '0'));
+		}
+		return buf.toString();
+	}
+
+	 public static byte[]  encodeBCD(String number, int len, boolean zeroIsA) throws IllegalArgumentException {
+			int numLen = number.length();
+			if(numLen > len*2 ){
+				throw new IllegalArgumentException("Number is to long: " + number + "  max length: "+ len);
+			}
+
+			if (zeroIsA) 
+		    number = number.replace('0', 'A');
+		    
+			byte[] bcd = new byte[len];
+			byte hb;
+			byte lb; 
+			for (int i = 0; i < numLen/2; i++){
+				hb = Byte.parseByte(number.substring(i*2, i*2+1), 16);
+				lb = Byte.parseByte(number.substring(i*2+1, i*2+2), 16);
+				bcd [i] = (byte)(hb << 4 | lb);		
+			}
+				
+			if (numLen%2  == 1){
+				hb = Byte.parseByte(number.substring(numLen-1), 16);
+				bcd [numLen/2] = (byte)(hb << 4);
+			}
+			
+			return bcd;
+	 }
+	 
+	 public static String byte2String(byte myByte){
+			String myString = String.format("%0X", myByte);
+			return myString;
+		}
+
+	static String byteArrayToHexString(byte in[]) {
+
+		byte ch = 0x00;
+
+		int i = 0;
+
+		if (in == null || in.length <= 0)
+
+			return null;
+
+		String pseudo[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+				"A", "B", "C", "D", "E", "F" };
+
+		StringBuffer out = new StringBuffer(in.length * 2);
+
+		while (i < in.length) {
+
+			ch = (byte) (in[i] & 0xF0); // Strip off
+			// high nibble
+
+			ch = (byte) (ch >>> 4);
+			// shift the bits down
+
+			ch = (byte) (ch & 0x0F);
+			// must do this is high order bit is on!
+
+			out.append(pseudo[(int) ch]); // convert the
+			// nibble to a String Character
+
+			ch = (byte) (in[i] & 0x0F); // Strip off
+			// low nibble
+
+			out.append(pseudo[(int) ch]); // convert the
+			// nibble to a String Character
+
+			i++;
+
+		}
+
+		String rslt = new String(out);
+
+		return rslt;
+
+	}
+	 
+
+	public static void main(String[] args) {
+		System.out.println(String.format("%x", (byte)0x81));
+	}
+}

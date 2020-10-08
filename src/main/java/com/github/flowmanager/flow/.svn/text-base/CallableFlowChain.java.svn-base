@@ -1,0 +1,17 @@
+package com.urmet.dresser.flow;
+
+import java.util.concurrent.Callable;
+
+import com.urmet.dresser.exception.SessionNotConnectedException;
+import com.urmet.dresser.exception.SessionTimeoutException;
+
+
+public interface CallableFlowChain<T extends FlowSession,V extends FlowContext,Z> extends Callable<Z> {
+
+//    void process(T session,V flowContext)throws FlowExecutionException;
+    boolean accept(V flowContext);
+    void doHandle()throws FlowExecutionException,SessionNotConnectedException,SessionTimeoutException;
+    void setFlowSession(T session);
+    void setFlowContext(V context);
+    
+}

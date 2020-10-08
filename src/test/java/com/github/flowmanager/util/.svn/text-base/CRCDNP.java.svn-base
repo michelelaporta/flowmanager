@@ -1,0 +1,49 @@
+package com.urmet.dresser.util;
+
+
+public final class CRCDNP{
+	
+    private static short  CRC_POLYNOM  =0x3D65;
+
+	//		The CRC polynomial is: x16 + x13 + x12 + x11 + x10 + x8 + x6 + x5 + x2 + 1
+	//    	Name   : "CRC-16/DNP"
+	//    	Width  : 16
+	//    	Poly   : 3D65
+	//    	Init   : 0000
+	//    	RefIn  : True
+	//    	RefOut : True
+	//    	XorOut : FFFF
+	//    	Check  : EA82
+
+    public static short crc16(byte[] input){
+    	Short crc = 0;
+    	for (int i = 0; i < input.length; i++) {
+			byte b = input[i];
+			crc = crc(crc,b);
+		}
+    	return (short)~crc;
+    }
+
+
+    public static short crc( short crcReg, byte crcData) 
+    {
+      char i;
+
+      for (i = 0; i < 8; i++) 
+      {
+        // If upper most bit is 1
+        if ((((crcReg & 0x8000) >> 8) ^ (crcData & 0x80)) != 0){
+        	Integer dd = (crcReg << 1) ^ CRC_POLYNOM;
+          crcReg = dd.shortValue();
+        }else{
+        	Integer dd = (crcReg << 1);
+          crcReg = dd.shortValue();
+        }
+
+        crcData <<= 1;
+      }
+      
+      return crcReg;
+    }
+
+}

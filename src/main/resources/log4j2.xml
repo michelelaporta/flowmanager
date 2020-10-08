@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level %c{1.}:%L - %msg%n"/>
+			<!-- <PatternLayout pattern="%highlight{%d{yyyy-MM-dd HH:mm:ss.SSS} [%p] [%t] [%C{1.}]:%L %m%n}{STYLE=Logback}"/> -->
+        </Console>
+        <!-- <File name="LogToFile" fileName="logs/app.log">
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+        </File> -->
+    </Appenders>
+    <Loggers>
+        <Logger name="com" level="debug" additivity="false">
+            <!-- <AppenderRef ref="LogToFile"/> -->
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
+        
+        <Root level="debug">
+            <!-- <AppenderRef ref="LogToFile"/> -->
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+    </Loggers>
+</Configuration>

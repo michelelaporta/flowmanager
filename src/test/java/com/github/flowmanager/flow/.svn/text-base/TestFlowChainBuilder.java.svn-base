@@ -1,0 +1,10 @@
+package com.urmet.dresser.flow;
+
+public class TestFlowChainBuilder extends AbstractFlowChainBuilder<TestGdmSession,FlowContext>{
+
+	@Override
+	public void build() {
+		flowChainExecutor.addFlow(new TestFlow());
+		flowChainExecutor.addFlow(new ExecuteFlow());
+	}
+}

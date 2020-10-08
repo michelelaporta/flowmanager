@@ -1,0 +1,57 @@
+package com.urmet.dresser.util;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class InvokeIdRoundRobin {
+
+	public Map<Integer,Boolean> activeIds;
+	
+	public InvokeIdRoundRobin(List<Integer> invokeIds) {
+		activeIds = new ConcurrentHashMap<Integer,Boolean>();
+		for(Integer id : invokeIds){
+			activeIds.put(id,false);
+		}
+		System.out.println(activeIds);
+	}
+
+	public void enqueue(Integer invokeId) {
+		activeIds.put(invokeId, false);
+	}
+	public Integer getNext() {
+
+		Integer invokeId = null;
+		synchronized (this) {
+			Iterator<Integer> keys = activeIds.keySet().iterator();
+			while (keys.hasNext()) {
+				invokeId = (Integer) keys.next();
+				System.out.println("invokeId " + invokeId + " active " + activeIds.get(invokeId));
+				if(!activeIds.get(invokeId)){
+					activeIds.put(invokeId, true);
+					System.out.println("robin " + activeIds);
+					break;
+				}else{
+					return null;
+				}
+			}
+		}
+		return invokeId;
+	}
+    
+	public static void main(String[] args) {
+		List<Integer> values = new ArrayList<Integer>();
+		for(int i = 1 ; i <= 15 ; i++)
+			values.add(i);
+		System.out.println("value " + values);
+		InvokeIdRoundRobin robin = new InvokeIdRoundRobin(values);
+		
+		for(int i = 0 ; i < 20 ; i++){
+			Integer x =robin.getNext();
+			System.out.println("ix " + x);
+		}
+	}
+
+}

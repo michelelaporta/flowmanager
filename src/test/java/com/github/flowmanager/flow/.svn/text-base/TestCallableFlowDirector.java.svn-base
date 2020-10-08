@@ -1,0 +1,10 @@
+package com.urmet.dresser.flow;
+
+
+public class TestCallableFlowDirector extends AbstractFlowDirector<TestGdmSession,FlowContext> {
+	
+	public TestCallableFlowDirector(long identifier,FlowManager<TestGdmSession,FlowContext> flowManager) {
+		super(identifier,new TestCallableFlowChainBuilder(),flowManager);
+	}
+
+}
